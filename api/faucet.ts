@@ -21,9 +21,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const signer = Ed25519Keypair.fromSecretKey(decodeSuiPrivateKey(process.env.MERCHANT_SECRET_KEY!).secretKey);
 	const tx = new Transaction();
 	tx.moveCall({ target: '0x2::balance::send_funds', typeArguments: [SUI], arguments: [tx.balance({ balance: 100_000_000n }), tx.pure.address(address)] });
-	if (usdc) tx.moveCall({ target: '0x2::balance::send_funds', typeArguments: [USDC], arguments: [tx.balance({ type: USDC, balance: 200_000n }), tx.pure.address(address)] });
+	if (usdc) tx.moveCall({ target: '0x2::balance::send_funds', typeArguments: [USDC], arguments: [tx.balance({ type: USDC, balance: 300_000n }), tx.pure.address(address)] });
 	const r = await client.signAndExecuteTransaction({ transaction: tx, signer });
 	if (r.$kind === 'FailedTransaction') return res.status(500).json({ error: r.FailedTransaction.status.error?.message });
 	await client.waitForTransaction({ result: r });
-	return res.status(200).json({ digest: r.Transaction.digest, sent: { sui: '0.1', usdc: usdc ? '0.2' : '0' } });
+	return res.status(200).json({ digest: r.Transaction.digest, sent: { sui: '0.1', usdc: usdc ? "0.3" : "0" } });
 }

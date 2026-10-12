@@ -48,6 +48,13 @@ export function decodeAbort(err: unknown): DecodedAbort {
 		};
 	};
 	const raw = e?.message ?? String(err);
+	// Refused before execution (signing-time input checks): no gas spent, no Move abort.
+	const pre: [RegExp, string, string][] = [
+		[/Invalid withdraw reservation: Insufficient address balance/, 'InsufficientFunderBalance', 'Funder\'s address balance is below the declared amount. Checked before the rate limit, costs no gas'],
+		[/Invalid withdraw reservation: Transaction sender is not the spender/, 'NotSpender', 'Sender is not this allowance\'s spender. Refused at signing, costs no gas'],
+		[/Object 0x[0-9a-f]+ not found|deleted/i, 'AllowanceGone', 'The allowance no longer exists (revoked). Refused before execution'],
+	];
+	for (const [re, name, meaning] of pre) if (re.test(raw)) return { module: 'pre-execution', code: null, name, meaning, raw };
 	const mod = e?.MoveAbort?.location?.module ?? /module[^a-z_]*([a-z_]+)/i.exec(raw)?.[1] ?? '';
 	const clever = e?.MoveAbort?.cleverError;
 	let code: number | null = clever?.errorCode ?? null;

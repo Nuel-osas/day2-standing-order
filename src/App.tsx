@@ -314,7 +314,7 @@ export default function App() {
 					<div key={i} className={l.ok ? 'log ok' : 'log bad'}>
 						<span className="muted">{l.at}</span> <b>{l.label}</b>{' '}
 						{l.digest && <a href={explorer('tx', l.digest)} target="_blank" rel="noreferrer"><code>{short(l.digest)}</code></a>}
-						{l.abort && l.abort.name !== 'Unknown' && <div className="abort">{l.abort.module}::{l.abort.name} (code {l.abort.code}): {l.abort.meaning}</div>}
+						{l.abort && l.abort.name !== 'Unknown' && <div className="abort">{l.abort.module}::{l.abort.name}{l.abort.code !== null && ` (code ${l.abort.code})`}: {l.abort.meaning}</div>}
 						{l.detail && <div className="small muted">{l.detail}</div>}
 					</div>
 				))}
