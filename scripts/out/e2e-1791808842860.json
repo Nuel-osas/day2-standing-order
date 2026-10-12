@@ -1,0 +1,178 @@
+{
+  "at": "2026-10-12T12:40:21.146Z",
+  "package": "0xfc34bc1003fd2381cafdb8cbedd5aad5df775d12b9f4a93e1e2b52d74ac1d8f6",
+  "direct.create": {
+    "digest": "FqB9PSre2EkrAmpW3WUXrJfgV358qdTDiDwLH5nD316i",
+    "allowanceId": "0x8b7df714aae1666a173b1462eb6b8e5c5934531a23f888945b71eebe0f097eae",
+    "capId": "0x091920ce5b853c0035ebbf6e2ab83cef79152784dcccb93ad9f781270db36e47"
+  },
+  "direct.charge1": {
+    "digest": "KnxCc8ffQft4LouAEKc9JQ1SjgWTNE1RuHeGfRtewDs",
+    "balanceChanges": [
+      {
+        "coinType": "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
+        "address": "0xb9b0b1ef7cf89f9d9cbceee1bb29530dad29cb5f0fd47ca6dbd769d101686771",
+        "amount": "-1100016"
+      },
+      {
+        "coinType": "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC",
+        "address": "0xb9b0b1ef7cf89f9d9cbceee1bb29530dad29cb5f0fd47ca6dbd769d101686771",
+        "amount": "50000"
+      },
+      {
+        "coinType": "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC",
+        "address": "0xcd5600a3b1eec541e61caacd45f561d4476b60662c7eaf2e07961e05b189bc7e",
+        "amount": "-50000"
+      }
+    ]
+  },
+  "direct.charge2.rateLimited": {
+    "stage": "simulate",
+    "error": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)",
+    "decoded": {
+      "module": "allowance",
+      "code": 4,
+      "name": "EExceedsRateLimit",
+      "meaning": "Spend would exceed the current rate-limit window",
+      "raw": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)"
+    },
+    "onChain": {
+      "error": "Transaction resolution failed: MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)"
+    }
+  },
+  "direct.wrongSpender": {
+    "stage": "build/simulate",
+    "error": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x8b7df714aae1666a173b1462eb6b8e5c5934531a23f888945b71eebe0f097eae",
+    "decoded": {
+      "module": "",
+      "code": null,
+      "name": "Unknown",
+      "meaning": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x8b7df714aae1666a173b1462eb6b8e5c5934531a23f888945b71eebe0f097eae",
+      "raw": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x8b7df714aae1666a173b1462eb6b8e5c5934531a23f888945b71eebe0f097eae"
+    }
+  },
+  "family.create": {
+    "digest": "BuWoGn5WWnjqXST4QqQjQ5vAuQbN4jnWmAjrgaQCDLW3",
+    "allowanceId": "0x1a0fc0c33eda1c7d0eeb4e2860e7ec72b39bb0a29cf4bcd995e24935c0552ce3",
+    "capId": "0x2a040a11b671818c34b9199232e2893e1146b3b0278941ab9cf3711bf4297693",
+    "storage": {
+      "computationCost": "1000000",
+      "storageCost": "5966000",
+      "storageRebate": "0",
+      "nonRefundableStorageFee": "0"
+    }
+  },
+  "family.childSpend": {
+    "digest": "bZuKjrkyvcaR3UcnUcvgjeJ4gey84JmEsVMpqQHjVE9"
+  },
+  "family.overWeekly": {
+    "stage": "simulate",
+    "error": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)",
+    "decoded": {
+      "module": "allowance",
+      "code": 4,
+      "name": "EExceedsRateLimit",
+      "meaning": "Spend would exceed the current rate-limit window",
+      "raw": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)"
+    }
+  },
+  "family.revoke": {
+    "digest": "4wY9w9UedrvFVDbPGh9HUguSBJ2F87VVMsuRbjhQNd21",
+    "gasUsed": {
+      "computationCost": "1000000",
+      "storageCost": "0",
+      "storageRebate": "5966532",
+      "nonRefundableStorageFee": "60268"
+    }
+  },
+  "family.spendAfterRevoke": {
+    "stage": "build/simulate",
+    "error": "Object 0x1a0fc0c33eda1c7d0eeb4e2860e7ec72b39bb0a29cf4bcd995e24935c0552ce3 not found",
+    "decoded": {
+      "module": "",
+      "code": null,
+      "name": "Unknown",
+      "meaning": "Object 0x1a0fc0c33eda1c7d0eeb4e2860e7ec72b39bb0a29cf4bcd995e24935c0552ce3 not found",
+      "raw": "Object 0x1a0fc0c33eda1c7d0eeb4e2860e7ec72b39bb0a29cf4bcd995e24935c0552ce3 not found"
+    }
+  },
+  "app.subscribe": {
+    "digest": "7k7FA5boqLVdjmAYDETGbtrX5BW4wDNSnS9Mavygambh",
+    "allowanceId": "0x0719966eba432e9cb73d961503c96ea48c31ac05d6c2cff6ff270c52c83e633b",
+    "capId": "0x6960ea890b7bf8185495d130160f6fb9a8d83659792bb343e3d263553eb739da",
+    "subscriptionId": "0xd1141a0999a85bafc5dee07563a80accbb1351c75c27e2dbbf20b6a0d7886227"
+  },
+  "app.chargeBeforeDelivery": {
+    "stage": "simulate",
+    "error": "MoveAbort in 1st command, 'ENothingDue': No delivered period is waiting to be charged, in '0xfc34bc1003fd2381cafdb8cbedd5aad5df775d12b9f4a93e1e2b52d74ac1d8f6::merchant::charge' (line 148)",
+    "decoded": {
+      "module": "merchant",
+      "code": 30,
+      "name": "ENothingDue",
+      "meaning": "No delivered period is waiting to be charged",
+      "raw": "MoveAbort in 1st command, 'ENothingDue': No delivered period is waiting to be charged, in '0xfc34bc1003fd2381cafdb8cbedd5aad5df775d12b9f4a93e1e2b52d74ac1d8f6::merchant::charge' (line 148)"
+    }
+  },
+  "app.deliver1": {
+    "digest": "AN7XX5cRDhefgzxbHnYWcLBw7QaiMKqZx2YozhiCRbnE"
+  },
+  "app.charge1": {
+    "digest": "6RF6QsZFwsayakPEXVRawztoY6HNCR3FAZz2ymCY8RTo",
+    "events": [
+      "0xfc34bc1003fd2381cafdb8cbedd5aad5df775d12b9f4a93e1e2b52d74ac1d8f6::merchant::Charged"
+    ]
+  },
+  "app.bypassDirectSpend": {
+    "stage": "simulate",
+    "error": "MoveAbort in 1st command, 'EHasApp': App-bound allowance: spend through `app_balance_spend`, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::balance_spend' (line 266)",
+    "decoded": {
+      "module": "allowance",
+      "code": 9,
+      "name": "EHasApp",
+      "meaning": "App-bound allowance: spend through app_balance_spend",
+      "raw": "MoveAbort in 1st command, 'EHasApp': App-bound allowance: spend through `app_balance_spend`, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::balance_spend' (line 266)"
+    }
+  },
+  "app.deliver2": {
+    "digest": "HzTqrY4mfSGxCWEfA2e1N8oai8Dru65ixE7HuxgtuAAJ"
+  },
+  "app.charge2.rateLimited": {
+    "stage": "simulate",
+    "error": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)",
+    "decoded": {
+      "module": "allowance",
+      "code": 4,
+      "name": "EExceedsRateLimit",
+      "meaning": "Spend would exceed the current rate-limit window",
+      "raw": "MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)"
+    },
+    "onChain": {
+      "error": "Transaction resolution failed: MoveAbort in 1st command, 'EExceedsRateLimit': Spend would exceed the current rate-limit window, in '0x0000000000000000000000000000000000000000000000000000000000000002::allowance::charge' (line 442)"
+    }
+  },
+  "app.oldKeyAfterRotate": {
+    "stage": "build/simulate",
+    "error": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x0719966eba432e9cb73d961503c96ea48c31ac05d6c2cff6ff270c52c83e633b",
+    "decoded": {
+      "module": "",
+      "code": null,
+      "name": "Unknown",
+      "meaning": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x0719966eba432e9cb73d961503c96ea48c31ac05d6c2cff6ff270c52c83e633b",
+      "raw": "Error checking transaction input objects: Invalid withdraw reservation: Transaction sender is not the spender of allowance 0x0719966eba432e9cb73d961503c96ea48c31ac05d6c2cff6ff270c52c83e633b"
+    }
+  },
+  "app.rotate": {
+    "toNext": "GwUENVdd1T3GhUkX7tbiN9EgZ829QgzfxtDPVHUJDTZs",
+    "back": "67HVkAypYeQQqMZMBUHXjfunMeS5rME4n22nzZRxupQL",
+    "nextKey": "0xeaf527ebcf901f48ecce21e06b0f419db707f8e1783525dad50f9612fa37cdf2"
+  },
+  "app.revoke": {
+    "digest": "EF6BkbVeZzwadL1dHzNrtBuja9w49cMcJuw6eKF377hy",
+    "gasUsed": {
+      "computationCost": "1000000",
+      "storageCost": "0",
+      "storageRebate": "6907032",
+      "nonRefundableStorageFee": "69768"
+    }
+  }
+}

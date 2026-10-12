@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.secrets
+*.key
+scripts/out
+move/standing_order/build
+node_modules

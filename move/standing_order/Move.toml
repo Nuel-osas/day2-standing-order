@@ -1,0 +1,8 @@
+[package]
+name = "standing_order"
+edition = "2024"
+
+[dependencies]
+
+[addresses]
+standing_order = "0x0"
