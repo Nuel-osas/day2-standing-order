@@ -55,7 +55,7 @@ export function decodeAbort(err: unknown): DecodedAbort {
 		[/Object 0x[0-9a-f]+ not found|deleted/i, 'AllowanceGone', 'The allowance no longer exists (revoked). Refused before execution'],
 	];
 	for (const [re, name, meaning] of pre) if (re.test(raw)) return { module: 'pre-execution', code: null, name, meaning, raw };
-	const mod = e?.MoveAbort?.location?.module ?? /module[^a-z_]*([a-z_]+)/i.exec(raw)?.[1] ?? '';
+	const mod = e?.MoveAbort?.location?.module ?? /0x[0-9a-f]+::(\w+)::\w+'/i.exec(raw)?.[1] ?? '';
 	const clever = e?.MoveAbort?.cleverError;
 	let code: number | null = clever?.errorCode ?? null;
 	if (code === null && e?.MoveAbort?.abortCode) {
@@ -63,12 +63,17 @@ export function decodeAbort(err: unknown): DecodedAbort {
 		// Clever errors pack the error code in the low 16 bits when the top bit is set.
 		code = n >= 1n << 63n ? Number(n & 0xffffn) : Number(n);
 	}
+	const table = mod === 'allowance' ? ALLOWANCE : mod === 'merchant' ? MERCHANT : {};
+	const quoted = /MoveAbort[^']*'(E\w+)'/.exec(raw)?.[1];
+	if (code === null && quoted) {
+		const found = Object.entries(table).find(([, v]) => v[0] === quoted);
+		if (found) code = Number(found[0]);
+	}
 	if (code === null) {
-		const m = /abort(?:ed)?(?: with)?(?: code)?[^\d]*(\d+)/i.exec(raw);
+		const m = /abort code:?\s*(\d+)/i.exec(raw);
 		if (m) code = Number(m[1]);
 	}
-	const table = mod === 'allowance' ? ALLOWANCE : mod === 'merchant' ? MERCHANT : {};
-	const hit = code !== null ? table[code] : undefined;
-	const name = clever?.constantName ?? hit?.[0] ?? 'Unknown';
-	return { module: mod, code, name, meaning: hit?.[1] ?? raw, raw };
+	const hit2 = code !== null ? table[code] : undefined;
+	const name = clever?.constantName ?? quoted ?? hit2?.[0] ?? 'Unknown';
+	return { module: mod, code, name, meaning: hit2?.[1] ?? raw, raw };
 }
