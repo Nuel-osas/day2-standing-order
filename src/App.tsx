@@ -13,12 +13,40 @@ const units = (n: bigint | string) => fromUnits(n, 9);
 const DOCS = 'https://docs.sui.io/onchain-finance/allowances/allowances-overview';
 type Receipt = { id: string; at: number; title: string; detail: string; kind: 'success' | 'blocked' | 'error'; digest?: string };
 type Funder = ReturnType<typeof useFunder>;
+type WalletBalance = { coin: string; address: string; change: { amount: bigint; at: number } | null };
+const totalBalance = (b: { coin: string; address: string }) => BigInt(b.coin) + BigInt(b.address);
+function nextBalance(previous: WalletBalance | null, next: { coin: string; address: string }, at: number): WalletBalance {
+  const difference = previous ? totalBalance(next) - totalBalance(previous) : 0n;
+  return { ...next, change: difference !== 0n ? { amount: difference, at } : previous?.change ?? null };
+}
+async function readWalletBalance(owner: string) {
+  const { balance } = await client.getBalance({ owner, coinType: SUI });
+  return { coin: balance.coinBalance, address: balance.addressBalance };
+}
 
 function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={diagonal ? 'M6 18 18 6M6 6h12v12' : 'M4 12h16m-6-6 6 6-6 6'} stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 function Mark() {
   return <svg viewBox="0 0 32 32" width="28" height="28" fill="none" aria-hidden="true"><path d="M9 9h15l-4-4M23 23H8l4 4M25 10a10 10 0 0 1-1 12M7 22A10 10 0 0 1 8 10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
+function BalanceCard({ role, address, balance, loading, failed, payment }: { role: 'Payer' | 'Merchant'; address?: string; balance: WalletBalance | null; loading: boolean; failed: boolean; payment?: Receipt }) {
+  const change = balance?.change;
+  const direction = change ? change.amount > 0n ? 'increase' : 'decrease' : '';
+  return <article className={`wallet-balance ${role.toLowerCase()}`} aria-label={`${role} balance`}>
+    <div className="balance-card-heading"><h3>{role}</h3><span className="small-label">{role === 'Payer' ? 'YOU' : 'DEMO'}</span></div>
+    {address ? <a className="address-link mono" href={explorer('account', address)} target="_blank" rel="noreferrer" aria-label={`View ${role.toLowerCase()} account`}>{short(address)} <Arrow diagonal /></a> : <span className="balance-address-placeholder">No wallet connected</span>}
+    <div className="wallet-total" aria-live="polite" aria-atomic="true">
+      {balance ? <strong key={change?.at ?? 'initial'} className={direction} data-balance={totalBalance(balance).toString()}>{units(totalBalance(balance))} <span>SUI</span></strong> : <span className="balance-placeholder">{!address ? 'Connect a wallet' : loading ? 'Loading…' : 'Unavailable'}</span>}
+    </div>
+    <div className={`balance-change ${direction}`} aria-live="polite">
+      {change ? <><b>{change.amount > 0n ? '↑ +' : '↓ −'}{units(change.amount < 0n ? -change.amount : change.amount)} SUI</b><span>Last change · {new Date(change.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></> : <span>{address ? 'Watching for balance changes' : 'Choose a wallet above'}</span>}
+    </div>
+    {payment?.digest && <div className={`payment-credit ${role === 'Payer' ? 'outgoing' : 'incoming'}`}><span>Last payment · before gas</span><a href={explorer('tx', payment.digest)} target="_blank" rel="noreferrer" aria-label={`View last payment ${role === 'Payer' ? 'sent' : 'received'}`}>{role === 'Payer' ? '−' : '+'}{units(DEMO.price)} SUI <Arrow diagonal /></a></div>}
+    {balance && <dl className="balance-breakdown"><div><dt>Address balance</dt><dd>{units(balance.address)} SUI</dd></div><div><dt>Coin objects</dt><dd>{units(balance.coin)} SUI</dd></div></dl>}
+    {failed && <p className="balance-error" role="status">{balance ? 'Update failed. Showing the last balance.' : 'Could not load this balance.'} Try Refresh.</p>}
+  </article>;
 }
 
 export default function App() {
@@ -51,7 +79,10 @@ export default function App() {
 }
 
 function Workspace({ funder, onBusy }: { funder: Funder; onBusy: (v: boolean) => void }) {
-  const [balance, setBalance] = useState<{ coin: string; address: string } | null>(null);
+  const [balance, setBalance] = useState<WalletBalance | null>(null);
+  const [merchantBalance, setMerchantBalance] = useState<WalletBalance | null>(null);
+  const [balanceErrors, setBalanceErrors] = useState({ payer: false, merchant: false });
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [allowances, setAllowances] = useState<AllowanceState[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [revokedId, setRevokedId] = useState<string | null>(null);
@@ -66,27 +97,43 @@ function Workspace({ funder, onBusy }: { funder: Funder; onBusy: (v: boolean) =>
   const [merchantReady, setMerchantReady] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
   const lock = useRef(false);
-  const refreshing = useRef(false);
+  const refreshing = useRef<Promise<void> | null>(null);
   const lastAutoAttempt = useRef(0);
   const autoCharge = useRef<() => void>(() => {});
   const allowance = allowances.find(a => a.id === selected) ?? allowances[0] ?? null;
   const state = allowance ? windowState(allowance, now) : null;
   const ready = balance != null && BigInt(balance.address) >= DEMO.lifetimeCap && BigInt(balance.coin) + BigInt(balance.address) >= 30_000_000n;
   const totalSpent = allowance ? BigInt(allowance.current_spend) : 0n;
+  const lastPayment = receipts.find(r => r.kind === 'success' && r.digest && (r.title === 'Payment collected' || r.title === 'Auto-charge completed'));
   const exhausted = !!state && state.lifetimeLeft < DEMO.price;
   const seconds = state?.nextReset ? Math.max(0, Math.ceil((state.nextReset - now) / 1000)) : null;
   const remainingPercent = state ? Math.min(100, Number(state.available) / Number(DEMO.price) * 100) : 100;
 
-  const refresh = useCallback(async () => {
-    if (!funder.address) { setLoading(false); return; }
-    if (refreshing.current) return;
-    refreshing.current = true;
-    try {
-      const [b, all] = await Promise.all([balances(funder.address), listFunderAllowances(funder.address)]);
-      setBalance(b.SUI);
-      setAllowances(all.filter(a => a.settings.name === DEMO.name && a.settings.spender === DEPLOYMENT.merchantAddress));
-    } catch { setError('Could not refresh Sui testnet. Check your connection and try Refresh.'); }
-    finally { refreshing.current = false; setLoading(false); }
+  const refresh = useCallback(async (afterAction = false) => {
+    if (refreshing.current) {
+      await refreshing.current;
+      if (!afterAction) return;
+    }
+    setIsRefreshing(true);
+    const request = (async () => {
+      const [payer, merchant, all] = await Promise.allSettled([
+        funder.address ? readWalletBalance(funder.address) : Promise.resolve(null),
+        readWalletBalance(DEPLOYMENT.merchantAddress),
+        funder.address ? listFunderAllowances(funder.address) : Promise.resolve([]),
+      ]);
+      const at = Date.now();
+      if (payer.status === 'fulfilled' && payer.value) {
+        const value = payer.value;
+        setBalance(previous => nextBalance(previous, value, at));
+      }
+      if (merchant.status === 'fulfilled') setMerchantBalance(previous => nextBalance(previous, merchant.value, at));
+      setBalanceErrors({ payer: payer.status === 'rejected', merchant: merchant.status === 'rejected' });
+      if (all.status === 'fulfilled') setAllowances(all.value.filter(a => a.settings.name === DEMO.name && a.settings.spender === DEPLOYMENT.merchantAddress));
+      else setError('Could not refresh allowances on Sui testnet. Check your connection and try Refresh.');
+    })();
+    refreshing.current = request;
+    try { await request; }
+    finally { refreshing.current = null; setIsRefreshing(false); setLoading(false); }
   }, [funder.address]);
 
   useEffect(() => { void refresh(); const t = setInterval(() => void refresh(), 8000); return () => clearInterval(t); }, [refresh]);
@@ -109,7 +156,7 @@ function Workspace({ funder, onBusy }: { funder: Funder; onBusy: (v: boolean) =>
     lock.current = true; setBusy(label); onBusy(true); setError('');
     try { await fn(); }
     catch (e) { const message = e instanceof Error ? e.message : 'Something went wrong. Please try again.'; setError(message); record(label, message, 'error'); }
-    finally { await refresh(); setBusy(''); onBusy(false); lock.current = false; }
+    finally { await refresh(true); setBusy(''); onBusy(false); lock.current = false; }
   }
   function successful(r: ExecResult) {
     if (r.ok === false) throw new Error(r.abort?.meaning ?? r.error);
@@ -194,6 +241,15 @@ function Workspace({ funder, onBusy }: { funder: Funder; onBusy: (v: boolean) =>
   const status = !allowance ? revokedId ? 'Revoked' : 'Not authorised' : state?.expired ? 'Expired' : exhausted ? 'Budget completed' : state?.available === 0n ? 'Waiting for renewal' : 'Ready to charge';
 
   return <>
+    <section className="payment-balances" aria-label="Live payment balances">
+      <div className="section-title"><div><h2>Follow the payment</h2><p>Live wallet totals · updates every 8 seconds and after each action</p></div><button className="refresh" onClick={() => void refresh()} disabled={!!busy || isRefreshing}>{isRefreshing ? '↻ Updating…' : '↻ Refresh'}</button></div>
+      <div className="balance-pair">
+        <BalanceCard role="Payer" address={funder.address} balance={balance} loading={loading} failed={balanceErrors.payer} payment={lastPayment} />
+        <span className="payment-direction" aria-hidden="true"><Arrow /></span>
+        <BalanceCard role="Merchant" address={DEPLOYMENT.merchantAddress} balance={merchantBalance} loading={loading} failed={balanceErrors.merchant} payment={lastPayment} />
+      </div>
+      <p className="balance-explanation">Each payment moves <b>0.001 SUI</b> from your address balance to the merchant. The merchant pays gas, which can exceed this tiny test payment and make its wallet total decrease. This merchant wallet is shared by all demo users.</p>
+    </section>
     <div className="demo-grid">
       <section className="plan-card" aria-label="Subscription allowance">
         <div className="plan-top"><span className="plan-icon"><Mark /></span><div><p className="small-label">YOUR DEMO SUBSCRIPTION</p><h2>One-minute club</h2></div><span className="outline-tag">TEST SUI</span></div>
@@ -221,7 +277,6 @@ function Workspace({ funder, onBusy }: { funder: Funder; onBusy: (v: boolean) =>
           <li className={totalSpent > 0n || revokedId ? 'done' : step === 3 ? 'current' : ''}><span className="step-number">{totalSpent > 0n || revokedId ? '✓' : '3'}</span><div><h3>Charge, then try again</h3><p>The first payment succeeds. A second in the same minute is rejected by Sui.</p></div></li>
           <li className={step === 4 ? 'current' : ''}><span className="step-number">4</span><div><h3>Watch it renew. Or revoke.</h3><p>After 60 seconds the budget resets. Revoke to stop future charges immediately.</p></div></li>
         </ol>
-        <div className="balance-box"><div><span className="small-label">YOUR SPENDING BALANCE</span><button className="refresh" onClick={() => void refresh()} disabled={!!busy}>↻ Refresh</button></div><strong>{loading ? 'Loading…' : balance ? `${units(balance.address)} SUI` : 'Connect a wallet'}</strong><p>{balance ? `${units(balance.coin)} SUI in coin objects` : 'Choose a demo wallet or connect a testnet account.'}</p></div>
         <div className="testnet-note"><span>ⓘ</span><p>{funder.demo ? 'This demo wallet’s key is stored in this browser. Use it only for free testnet tokens.' : 'Use a testnet wallet. Your wallet approves setup and revocation; the merchant signs charges.'}</p></div>
       </aside>
     </div>

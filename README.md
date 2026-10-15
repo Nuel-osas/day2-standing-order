@@ -16,6 +16,8 @@ Built for Account Layer Week, SuiHub Lagos. React + Vite frontend, Vercel Node.j
 6. Enable **Auto-charge when the budget renews**, or wait for the countdown and charge manually. The first successful spend anchors the 60-second windows. Unused budgets do not accumulate.
 7. **Revoke permission**, then **Try charging the revoked allowance**. The merchant can no longer use it.
 
+The **Follow the payment** panel shows payer and merchant wallet totals side by side, including address balances and coin objects. It refreshes every eight seconds and after actions, highlights observed increases or decreases, and links the last payment sent and received to its receipt. The merchant wallet is shared across demo users and pays gas: gas can exceed the 0.001 SUI payment, so its net wallet balance can fall even after receiving a payment. Failed reads retain the last balance with an error label instead of displaying a misleading zero.
+
 The auto-charge scheduler runs **only while the browser tab is open**, and browsers can throttle background tabs. Permission renewal is enforced onchain; submitting a payment still requires a scheduler. This demo does not claim unattended server-side subscriptions. An allowance is not a reservation of funds, so a charge also requires sufficient address balance.
 
 Activity receipts are stored per wallet in the browser. Allowances are recovered from onchain `AllowanceCap` objects after a reload. The local countdown is informational; Sui's clock decides whether a spend is valid. A browser demo key is stored in localStorage and must only hold testnet tokens. Connected wallet keys remain in the wallet.

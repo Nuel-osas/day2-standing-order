@@ -9,3 +9,68 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 .funding-wait{color:#a9c1dc;font-size:10px}@media(max-width:740px){.busy-notice{white-space:normal;flex-wrap:wrap;justify-content:center;width:max-content}.funding-wait{width:100%;text-align:center}}
 .auto-charge input{z-index:1;margin:0;cursor:pointer}
+
+.payment-balances { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 18px; }
+.payment-balances > .section-title { margin-bottom: 20px; }
+.payment-balances > .section-title p { font-size: 11px; color: var(--muted); line-height: 1.6; margin-top: 5px; }
+.payment-balances .refresh { flex-shrink: 0; min-height: 32px; }
+.balance-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; position: relative; }
+.wallet-balance { min-width: 0; padding: 22px; border: 1px solid #dce7f6; border-radius: 10px; background: #f7faff; }
+.wallet-balance.merchant { border-color: #d9eae2; background: #f5fbf8; }
+.balance-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.balance-card-heading h3 { font-size: 14px; font-weight: 600; }
+.wallet-balance .address-link { font-size: 10px; }
+.balance-address-placeholder { font-size: 10px; color: var(--muted); }
+.wallet-total { margin: 20px 0 8px; min-height: 42px; display: flex; align-items: center; }
+.wallet-total strong { display: block; font-size: clamp(24px, 3vw, 36px); font-weight: 500; letter-spacing: -1px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.wallet-total strong > span { font-size: 13px; color: var(--muted); letter-spacing: 0; }
+.balance-placeholder { font-size: 16px; color: var(--muted); }
+.balance-change { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; min-height: 34px; font-size: 10px; }
+.balance-change b { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.balance-change > span { color: #718293; }
+.balance-change.increase { color: #18734f; }
+.balance-change.decrease { color: #af4c36; }
+.payment-credit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 12px; padding: 10px 12px; border-radius: 6px; background: #edf2f9; }
+.payment-credit > span { font-size: 10px; color: var(--muted); }
+.payment-credit a { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; }
+.payment-credit a svg { width: 12px; height: 12px; }
+.payment-credit.outgoing a { color: #af4c36; }
+.payment-credit.incoming { background: #e8f4ee; }
+.payment-credit.incoming a { color: #18734f; }
+.wallet-total .increase { animation: balance-up 1.8s ease-out; }
+.wallet-total .decrease { animation: balance-down 1.8s ease-out; }
+.balance-breakdown { border-top: 1px solid #dfe8ef; padding-top: 13px; margin: 13px 0 0; display: grid; gap: 7px; font-size: 10px; }
+.balance-breakdown > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+.balance-breakdown dt { color: var(--muted); }
+.balance-breakdown dd { margin: 0; color: #40576a; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.payment-direction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; border: 1px solid var(--border); background: white; color: var(--blue); border-radius: 50%; width: 34px; height: 34px; }
+.balance-explanation { font-size: 11px; line-height: 1.7; color: var(--muted); margin-top: 16px; max-width: 850px; }
+.balance-explanation b { color: #40576a; font-weight: 500; }
+.balance-error { color: #985e32; font-size: 11px; line-height: 1.6; margin-top: 12px; }
+@keyframes balance-up { from { color: #18734f; background: #d8f3e4; } to { color: var(--ink); background: transparent; } }
+@keyframes balance-down { from { color: #af4c36; background: #ffe5dc; } to { color: var(--ink); background: transparent; } }
+@media (max-width: 560px) {
+  .payment-balances { padding: 16px 12px; }
+  .payment-balances > .section-title { align-items: flex-start; }
+  .payment-balances > .section-title p { font-size: 10px; max-width: 200px; }
+  .balance-pair { gap: 10px; }
+  .wallet-balance { padding: 14px 10px; }
+  .balance-card-heading h3 { font-size: 13px; }
+  .balance-card-heading .small-label { font-size: 8px; }
+  .wallet-balance .address-link { font-size: 8px; gap: 3px; letter-spacing: 0; }
+  .wallet-balance .address-link svg { width: 10px; }
+  .wallet-total { margin-top: 18px; min-height: 48px; }
+  .wallet-total strong { font-size: clamp(16px, 4.5vw, 24px); letter-spacing: -.6px; }
+  .wallet-total strong > span { font-size: 10px; display: block; margin-top: 3px; }
+  .balance-change { min-height: 44px; font-size: 9px; align-content: center; gap: 4px; }
+  .balance-change b { font-size: 10px; overflow-wrap: anywhere; }
+  .payment-credit { padding: 8px; }
+  .payment-credit > span { font-size: 9px; line-height: 1.5; }
+  .payment-credit a { font-size: 11px; }
+  .balance-breakdown { font-size: 9px; }
+  .balance-breakdown > div { flex-direction: column; }
+  .balance-placeholder { font-size: 13px; }
+  .payment-direction { width: 24px; height: 24px; }
+  .payment-direction svg { width: 14px; }
+  .balance-explanation { font-size: 10px; }
+}
