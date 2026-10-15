@@ -2,9 +2,9 @@ import { bcs } from '@mysten/sui/bcs';
 import { SuiGrpcClient } from '@mysten/sui/grpc';
 import { normalizeStructTag } from '@mysten/sui/utils';
 
-import { COINS, GRPC_URL, NETWORK } from '../../shared/constants.js';
+import { COINS, GRPC_OPTIONS } from '../../shared/constants.js';
 
-export const client = new SuiGrpcClient({ network: NETWORK, baseUrl: GRPC_URL });
+export const client = new SuiGrpcClient(GRPC_OPTIONS);
 
 // Full layout of sui::allowance::Allowance<T>, read straight from BCS.
 const Window = bcs.enum('Window', { PeriodicMs: bcs.u64(), CalendarMonths: bcs.u8() });

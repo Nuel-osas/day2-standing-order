@@ -4,10 +4,10 @@ import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { isValidSuiObjectId } from '@mysten/sui/utils';
 
-import { GRPC_URL, NETWORK } from '../shared/constants.js';
+import { GRPC_OPTIONS } from '../shared/constants.js';
 import { charge } from '../shared/merchant.js';
 
-const client = new SuiGrpcClient({ network: NETWORK, baseUrl: GRPC_URL });
+const client = new SuiGrpcClient(GRPC_OPTIONS);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });

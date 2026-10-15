@@ -1,5 +1,6 @@
 export const NETWORK = 'testnet' as const;
 export const GRPC_URL = 'https://fullnode.testnet.sui.io:443';
+export const GRPC_OPTIONS = { network: NETWORK, baseUrl: GRPC_URL } as const;
 export const USDC =
 	'0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC';
 export const SUI = '0x2::sui::SUI';

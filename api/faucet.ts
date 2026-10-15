@@ -6,9 +6,9 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { Transaction } from '@mysten/sui/transactions';
 import { isValidSuiAddress } from '@mysten/sui/utils';
 
-import { GRPC_URL, NETWORK, SUI, USDC } from '../shared/constants.js';
+import { GRPC_OPTIONS, SUI, USDC } from '../shared/constants.js';
 
-const client = new SuiGrpcClient({ network: NETWORK, baseUrl: GRPC_URL });
+const client = new SuiGrpcClient(GRPC_OPTIONS);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 	if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
