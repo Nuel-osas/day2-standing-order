@@ -48,7 +48,7 @@ export function useFunder() {
 		if (!demo && !account) return { ok: false, error: 'Connect a testnet wallet first.' };
 		if (!useWallet) return execWithKey(tx, demoKey);
 		try {
-			const r = await dAppKit.signAndExecuteTransaction({ transaction: tx });
+			const r = await dAppKit.signAndExecuteTransaction({ transaction: tx, account: account! });
 			if (r.$kind === 'FailedTransaction') {
 				return { ok: false, error: String(r.FailedTransaction.status.error?.message ?? 'failed'), digest: r.FailedTransaction.digest };
 			}

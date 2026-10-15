@@ -1,6 +1,6 @@
 # Standing Order — The Allowance Playground
 
-A live Sui testnet demo of native recurring payment authorisation. A user grants permission once, a merchant collects within its limits, and the user can revoke at any time.
+A live Sui testnet demo of native recurring payment authorisation. Each student gets a personal demo merchant for their payer account. The payer grants permission once, the merchant collects within its limits, and the payer can revoke at any time.
 
 **Live:** https://day2-standing-order.vercel.app
 
@@ -9,35 +9,31 @@ Built for Account Layer Week, SuiHub Lagos. React + Vite frontend, Vercel Node.j
 ## Try it
 
 1. Choose **Demo wallet**, or connect a testnet wallet under **My wallet**.
-2. Select **Get test funds**. The public Sui V3 faucet funds the address balance. Proof-of-work may take a minute. Existing coin objects can be converted into the same owner's address balance; setup keeps gas available.
+2. Select **Get test funds** to fund both your payer and personal merchant through the public Sui V3 faucet. Proof-of-work may take a minute per wallet. Existing payer coin objects can be converted into the same owner's address balance. **Get merchant gas** also funds the merchant independently.
 3. Review the plan and **Approve this allowance**: 0.001 SUI per 60 seconds, 0.006 SUI lifetime cap, expiry 24 hours after approval.
-4. **Collect 0.001 SUI**. The merchant signs and pays gas; the funder does not sign the charge.
-5. **Try another charge** in the same window. Sui rejects it. The API simulates first, so a simulated rejection creates no payment or execution gas charge.
+4. **Collect 0.001 SUI**. Your personal merchant signs locally and pays gas; the payer does not sign the charge. The merchant key is never sent to a server.
+5. **Try another charge** in the same window. Sui rejects it. The browser simulates first, so a simulated rejection creates no payment or execution gas charge.
 6. Enable **Auto-charge when the budget renews**, or wait for the countdown and charge manually. The first successful spend anchors the 60-second windows. Unused budgets do not accumulate.
 7. **Revoke permission**, then **Try charging the revoked allowance**. The merchant can no longer use it.
 
-The **Follow the payment** panel shows payer and merchant wallet totals side by side, including address balances and coin objects. It refreshes every eight seconds and after actions, highlights observed increases or decreases, and links the last payment sent and received to its receipt. The merchant wallet is shared across demo users and pays gas: gas can exceed the 0.001 SUI payment, so its net wallet balance can fall even after receiving a payment. Failed reads retain the last balance with an error label instead of displaying a misleading zero.
+The **Follow the payment** panel shows payer and merchant wallet totals side by side, including address balances and coin objects. The payer card identifies whether it is using the browser demo wallet or your connected wallet. In **My wallet** mode, the payer address, balance, allowances, and receipts follow the selected connected account; switching accounts selects that account's own merchant, and disconnecting clears both cards without falling back to the demo wallet. It refreshes every eight seconds and after actions, highlights observed increases or decreases, and links the last payment sent and received to its receipt. Red outgoing and green incoming markers show the payment direction, with a brief arrow animation on success. The merchant pays gas: gas can exceed the 0.001 SUI payment, so its net wallet balance can fall even after receiving a payment. Failed reads retain the last balance with an error label instead of displaying a misleading zero.
 
 The auto-charge scheduler runs **only while the browser tab is open**, and browsers can throttle background tabs. Permission renewal is enforced onchain; submitting a payment still requires a scheduler. This demo does not claim unattended server-side subscriptions. An allowance is not a reservation of funds, so a charge also requires sufficient address balance.
 
-Activity receipts are stored per wallet in the browser. Allowances are recovered from onchain `AllowanceCap` objects after a reload. The local countdown is informational; Sui's clock decides whether a spend is valid. A browser demo key is stored in localStorage and must only hold testnet tokens. Connected wallet keys remain in the wallet.
+Merchant keys are generated separately for each payer address in each browser and persist across reloads. Different students/browsers do not share merchant keys, balances, or payment history. A different browser creates a different merchant, even for the same connected payer. Activity receipts are stored per payer/merchant pair in the browser. Allowances are recovered from onchain `AllowanceCap` objects after a reload. The local countdown is informational; Sui's clock decides whether a spend is valid. Demo payer and merchant keys are stored in localStorage and must only hold testnet tokens; clearing browser storage removes them. Connected wallet keys remain in the wallet. Older permissions, including those for the retired shared merchant, appear under **Previous merchant permissions** and can still be revoked by their payer.
 
 ## Local development
 
-Use **Node 24.7+ within the 24.x line** (native Argon2 makes the V3 faucet proof practical), pnpm, and a funded testnet merchant signer.
+Use **Node 24.7+ within the 24.x line** (native Argon2 makes the V3 faucet proof practical) and pnpm. The personal merchant playground requires no server signing key.
 
 ```sh
 pnpm install
-cp .env.example .env
-# Set MERCHANT_SECRET_KEY to the existing testnet merchant signer.
 vercel dev --listen 3017
 ```
 
 `pnpm dev` serves the UI only. Use `vercel dev` for the API routes. TypeScript is pinned to 5.9 because the local Vercel 50.x function runner fails when loading this project's API modules with TypeScript 6.
 
-The merchant address is recorded in `shared/deployment.ts`. `/api/pull` verifies that the server signer matches it. For a separate deployment with another signer, update that public address and grant new allowances; existing allowances remain bound to the old spender.
-
-The current native demo needs only `MERCHANT_SECRET_KEY`. Never expose that key with a `VITE_` prefix. The old classroom USDC faucet and natural-language endpoints additionally use `DEMO_PASSCODE` and `DEEPSEEK_API_KEY`; they are not called by this interface.
+The shared-merchant `/api/pull` endpoint now returns HTTP 410 so old tabs cannot continue collecting through it. `shared/deployment.ts`, `MERCHANT_SECRET_KEY`, `DEMO_PASSCODE`, and `DEEPSEEK_API_KEY` are retained only for legacy classroom scripts/endpoints; the current interface does not use them. Never expose legacy server keys with a `VITE_` prefix.
 
 ## Validation
 
@@ -53,7 +49,7 @@ The complete browser test uses real testnet transactions: funding, grant, charge
 
 ## Deploy to Vercel
 
-The existing project is `day2-standing-order`. Configure `MERCHANT_SECRET_KEY` as an encrypted **production** environment variable, keep the merchant funded with testnet gas, and run:
+The existing project is `day2-standing-order`. Personal merchants are created and funded by each student in the app; no server merchant key is required. Run:
 
 ```sh
 vercel deploy --prod --yes
@@ -68,11 +64,12 @@ vercel deploy --prod --yes
 | `src/App.tsx` | Guided subscription flow, wallet setup, activity receipts, optional browser scheduler |
 | `src/lib/funder.ts` | Browser demo signer or connected wallet; never silently falls back from a disconnected wallet |
 | `src/lib/chain.ts` | Read balances, allowances, capabilities, and receipts |
+| `src/lib/merchant.ts` | Validate the payer/merchant pair, simulate, and sign personal merchant collections locally |
 | `shared/demo.ts` | Fixed demo limits and display-only window accounting |
 | `shared/allowance.ts` | Native issue, spend, and revoke transaction builders |
-| `api/pull.ts` | Fixed-plan merchant collection; validates asset, spender, name, limits, and native permission |
+| `api/pull.ts` | Retired shared-merchant route; returns HTTP 410 |
 | `api/test-funds.ts` | Public V3 faucet request; never distributes merchant funds |
-| `api/status.ts` | Public network and merchant configuration status, without secrets |
+| `api/status.ts` | Public network and personal-merchant mode status |
 
 ## Original classroom material
 

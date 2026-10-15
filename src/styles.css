@@ -15,10 +15,15 @@
 .payment-balances > .section-title p { font-size: 11px; color: var(--muted); line-height: 1.6; margin-top: 5px; }
 .payment-balances .refresh { flex-shrink: 0; min-height: 32px; }
 .balance-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; position: relative; }
-.wallet-balance { min-width: 0; padding: 22px; border: 1px solid #dce7f6; border-radius: 10px; background: #f7faff; }
+.wallet-balance { min-width: 0; padding: 22px; border: 1px solid #f0d9d2; border-radius: 10px; background: #fff8f5; }
 .wallet-balance.merchant { border-color: #d9eae2; background: #f5fbf8; }
 .balance-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
 .balance-card-heading h3 { font-size: 14px; font-weight: 600; }
+.balance-wallet-source { font-size: 10px; color: var(--muted); line-height: 1.5; margin-bottom: 7px; }
+.flow-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 7px; border-radius: 5px; font: 9px var(--mono); letter-spacing: .5px; }
+.flow-badge > span { font-size: 13px; line-height: 1; }
+.flow-badge.outgoing { color: #a33a28; background: #fce4dc; }
+.flow-badge.incoming { color: #146a47; background: #dbf1e6; }
 .wallet-balance .address-link { font-size: 10px; }
 .balance-address-placeholder { font-size: 10px; color: var(--muted); }
 .wallet-total { margin: 20px 0 8px; min-height: 42px; display: flex; align-items: center; }
@@ -32,9 +37,11 @@
 .balance-change.decrease { color: #af4c36; }
 .payment-credit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 12px; padding: 10px 12px; border-radius: 6px; background: #edf2f9; }
 .payment-credit > span { font-size: 10px; color: var(--muted); }
+.payment-credit > span > small { display: block; font-size: 9px; margin-top: 3px; }
 .payment-credit a { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; }
 .payment-credit a svg { width: 12px; height: 12px; }
 .payment-credit.outgoing a { color: #af4c36; }
+.payment-credit.outgoing { background: #fcebe5; }
 .payment-credit.incoming { background: #e8f4ee; }
 .payment-credit.incoming a { color: #18734f; }
 .wallet-total .increase { animation: balance-up 1.8s ease-out; }
@@ -43,10 +50,27 @@
 .balance-breakdown > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
 .balance-breakdown dt { color: var(--muted); }
 .balance-breakdown dd { margin: 0; color: #40576a; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.payment-direction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; border: 1px solid var(--border); background: white; color: var(--blue); border-radius: 50%; width: 34px; height: 34px; }
+.payment-direction { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: grid; place-items: center; border: 1px solid #c8e4d6; background: white; color: #18734f; border-radius: 50%; width: 34px; height: 34px; }
+.payment-direction.flowing { background: #dbf1e6; box-shadow: 0 0 0 6px #dbf1e655; }
+.payment-direction.flowing svg { animation: money-flow .8s ease-in-out infinite; }
+@keyframes money-flow { 0%, 100% { transform: translateX(-3px); opacity: .5; } 50% { transform: translateX(3px); opacity: 1; } }
 .balance-explanation { font-size: 11px; line-height: 1.7; color: var(--muted); margin-top: 16px; max-width: 850px; }
 .balance-explanation b { color: #40576a; font-weight: 500; }
 .balance-error { color: #985e32; font-size: 11px; line-height: 1.6; margin-top: 12px; }
+.merchant-setup { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 18px; }
+.merchant-setup p { font-size: 11px; line-height: 1.7; color: var(--muted); max-width: 490px; margin-top: 5px; }
+.merchant-tools { display: flex; flex-shrink: 0; align-items: center; gap: 14px; }
+.merchant-tools .button { padding: 10px 12px; font-size: 11px; }
+.gas-ready { font-size: 11px; color: #18734f; }
+.previous-permissions { border: 1px solid #f0d9d2; border-radius: 12px; background: #fffaf7; padding: 22px; margin-top: 18px; }
+.previous-permissions h2 { font-size: 14px; font-weight: 600; }
+.previous-permissions > p { font-size: 11px; color: var(--muted); line-height: 1.7; margin: 8px 0 14px; }
+.previous-permissions > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.previous-permissions .button { width: auto; padding: 9px 12px; }
+@media (max-width: 740px) {
+  .merchant-setup { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .merchant-tools { flex-wrap: wrap; gap: 12px; }
+}
 @keyframes balance-up { from { color: #18734f; background: #d8f3e4; } to { color: var(--ink); background: transparent; } }
 @keyframes balance-down { from { color: #af4c36; background: #ffe5dc; } to { color: var(--ink); background: transparent; } }
 @media (max-width: 560px) {
@@ -56,7 +80,9 @@
   .balance-pair { gap: 10px; }
   .wallet-balance { padding: 14px 10px; }
   .balance-card-heading h3 { font-size: 13px; }
+  .balance-wallet-source { min-height: 30px; }
   .balance-card-heading .small-label { font-size: 8px; }
+  .flow-badge { font-size: 8px; padding: 3px 5px; gap: 2px; }
   .wallet-balance .address-link { font-size: 8px; gap: 3px; letter-spacing: 0; }
   .wallet-balance .address-link svg { width: 10px; }
   .wallet-total { margin-top: 18px; min-height: 48px; }

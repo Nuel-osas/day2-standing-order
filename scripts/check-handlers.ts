@@ -12,8 +12,10 @@ async function call(handler: any, method: string, body = {}) {
 }
 assert.equal((await call(pull, 'GET')).statusCode, 405);
 assert.equal((await call(pull, 'POST', { allowanceId: 'bad' })).statusCode, 400);
+assert.equal((await call(pull, 'POST', { allowanceId: `0x${'12'.repeat(32)}` })).statusCode, 410);
 assert.equal((await call(funds, 'GET')).statusCode, 405);
 assert.equal((await call(funds, 'POST', { address: 'bad' })).statusCode, 400);
 assert.equal((await call(status, 'POST')).statusCode, 405);
 assert.equal((await call(status, 'GET')).data.network, 'testnet');
+assert.equal((await call(status, 'GET')).data.merchantMode, 'personal-browser');
 console.log('API method and malformed-input checks passed.');
