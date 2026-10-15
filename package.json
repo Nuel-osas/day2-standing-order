@@ -3,9 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
+    "test": "tsx --test shared/demo.test.ts && tsx scripts/check-handlers.ts",
     "preview": "vite preview",
     "setup": "tsx scripts/setup.ts",
     "e2e": "tsx scripts/e2e.ts",
@@ -29,7 +33,7 @@
     "dotenv": "^18.0.7",
     "oxlint": "^1.81.0",
     "tsx": "^4.23.15",
-    "typescript": "~6.0.2",
+    "typescript": "~5.9.3",
     "vite": "^8.3.0"
   }
 }

@@ -45,6 +45,7 @@ export function useFunder() {
 	const address = useWallet ? account!.address : demo ? demoKey.toSuiAddress() : null;
 
 	async function exec(tx: Transaction): Promise<ExecResult> {
+		if (!demo && !account) return { ok: false, error: 'Connect a testnet wallet first.' };
 		if (!useWallet) return execWithKey(tx, demoKey);
 		try {
 			const r = await dAppKit.signAndExecuteTransaction({ transaction: tx });

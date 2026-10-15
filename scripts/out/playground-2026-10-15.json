@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "errors": [],
+  "overflow": false,
+  "receipts": [
+    "⊘Revoked permission blockedRULE ENFORCEDThis allowance no longer exists. It may have been revoked.01:00:57 PMNo onchain receipt",
+    "✓Permission revokedThe allowance was deleted onchain. The merchant can no longer charge against it.01:00:55 PM4EoYJHa…LpfCD ",
+    "✓Auto-charge completedThe merchant collected 0.001 test SUI using its own signature. Your wallet did not sign this charge.01:00:51 PM5aWVf5U…fay2G ",
+    "⊘Extra charge blockedRULE ENFORCEDSpend would exceed the current rate-limit window Rejected in simulation; no payment or execution gas was spent.12:59:50 PMNo onchain receipt",
+    "✓Payment collectedThe merchant collected 0.001 test SUI using its own signature. Your wallet did not sign this charge.12:59:48 PMF5ypkET…ux6Ai ",
+    "✓Permission grantedYou approved 0.001 SUI per minute, up to 0.006 SUI total. No subscription payment has moved yet.12:59:45 PMFYJQTPs…XNy4B ",
+    "✓Spending balance readyYour address balance already has enough test SUI for this demo.12:59:42 PMNo onchain receipt",
+    "✓Test funds receivedFree SUI from the public testnet faucet. These tokens have no monetary value.12:59:42 PM3UkPgV4…LwMtC ",
+    "!Preparing test fundsThe public faucet is unavailable. Use the Sui faucet link below, then refresh your balance.12:54:23 PMNo onchain receipt"
+  ],
+  "links": [
+    "https://suiscan.xyz/testnet/tx/4EoYJHaWQCjVzDe9NJce2tUizUSTHBdP1dd8q5ELpfCD",
+    "https://suiscan.xyz/testnet/tx/5aWVf5U5mrT4cwQeYfvueWSruzNZetQsvU6pL4gfay2G",
+    "https://suiscan.xyz/testnet/tx/F5ypkEThqDgByFWD5Gb23F3mzab3Ua545dDP4QHux6Ai",
+    "https://suiscan.xyz/testnet/tx/FYJQTPshFVksV9HWcWao3CiqB4hiDLed5YptkesXNy4B",
+    "https://suiscan.xyz/testnet/tx/3UkPgV4icDCgtXPguDkFPWp7oaT5R8vSvG6BjNNLwMtC"
+  ]
+}
